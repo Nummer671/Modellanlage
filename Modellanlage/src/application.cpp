@@ -29,9 +29,6 @@ extern "C" void taskApplication(void *pvParameters)
 	
 	vTaskPrioritySet(NULL, tskIDLE_PRIORITY + 5);
 
-	//Test123
-	//Test Kommentar
-	// Test 2
 	xTaskCreate(scalefoo, scale, configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 4, NULL);
 
 	// Start des Steuerprogramms
