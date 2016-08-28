@@ -1,0 +1,162 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header Files\kernel">
+      <UniqueIdentifier>{f3ce8fd1-04c1-43bf-8cf7-8cf623434623}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\trace">
+      <UniqueIdentifier>{8299c46f-0ac8-436a-9835-d64b5bc67078}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\kernel\portable">
+      <UniqueIdentifier>{f81bb7e3-3805-4a5b-a858-08529aba48d1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\kernel">
+      <UniqueIdentifier>{79d68f22-9263-41a9-aaf3-0d8c6f39cbba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\kernel\portable">
+      <UniqueIdentifier>{d1a4e642-255a-4819-8fe6-2c61499b42f3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\kernel\portable\MemMang">
+      <UniqueIdentifier>{007abcfe-8fdd-4cb7-9a17-e361a835de0c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\trace">
+      <UniqueIdentifier>{babd8ba8-fc76-4919-b7c6-d85e94db5814}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\util">
+      <UniqueIdentifier>{c449c805-f2c0-4289-9439-87e8e2e59e87}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\util">
+      <UniqueIdentifier>{11c5ef66-8138-4f5c-a48a-6a9ad45fcdbe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Classes">
+      <UniqueIdentifier>{aea7dc67-d282-4746-9fc2-aedf5a8f4073}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\kernel\croutine.h">
+      <Filter>Header Files\kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="include\kernel\FreeRTOS.h">
+      <Filter>Header Files\kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="include\kernel\list.h">
+      <Filter>Header Files\kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="include\kernel\mpu_wrappers.h">
+      <Filter>Header Files\kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="include\kernel\portable.h">
+      <Filter>Header Files\kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="include\kernel\projdefs.h">
+      <Filter>Header Files\kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="include\kernel\queue.h">
+      <Filter>Header Files\kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="include\kernel\semphr.h">
+      <Filter>Header Files\kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="include\kernel\StackMacros.h">
+      <Filter>Header Files\kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="include\kernel\task.h">
+      <Filter>Header Files\kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="include\kernel\timers.h">
+      <Filter>Header Files\kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="include\kernel\portable\portmacro.h">
+      <Filter>Header Files\kernel\portable</Filter>
+    </ClInclude>
+    <ClInclude Include="include\trace\frtos_pipe.h">
+      <Filter>Header Files\trace</Filter>
+    </ClInclude>
+    <ClInclude Include="include\trace\global_switch.h">
+      <Filter>Header Files\trace</Filter>
+    </ClInclude>
+    <ClInclude Include="include\trace\logTraceMacros.h">
+      <Filter>Header Files\trace</Filter>
+    </ClInclude>
+    <ClInclude Include="include\util\bprint.h">
+      <Filter>Header Files\util</Filter>
+    </ClInclude>
+    <ClInclude Include="include\util\simCommunication.h">
+      <Filter>Header Files\util</Filter>
+    </ClInclude>
+    <ClInclude Include="include\FreeRTOSConfig.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\kernel\deprecated_definitions.h">
+      <Filter>Header Files\kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="include\kernel\event_groups.h">
+      <Filter>Header Files\kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\generatedCode\Basiselemente\PresenceDetector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ComCodes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\kernel\croutine.c">
+      <Filter>Source Files\kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="src\kernel\list.c">
+      <Filter>Source Files\kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="src\kernel\queue.c">
+      <Filter>Source Files\kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="src\kernel\tasks.c">
+      <Filter>Source Files\kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="src\kernel\timers.c">
+      <Filter>Source Files\kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="src\kernel\portable\port.c">
+      <Filter>Source Files\kernel\portable</Filter>
+    </ClCompile>
+    <ClCompile Include="src\kernel\portable\MemMang\heap_4.c">
+      <Filter>Source Files\kernel\portable\MemMang</Filter>
+    </ClCompile>
+    <ClCompile Include="src\trace\frtos_pipe.c">
+      <Filter>Source Files\trace</Filter>
+    </ClCompile>
+    <ClCompile Include="src\trace\logTraceMacros.c">
+      <Filter>Source Files\trace</Filter>
+    </ClCompile>
+    <ClCompile Include="src\trace\main.c">
+      <Filter>Source Files\trace</Filter>
+    </ClCompile>
+    <ClCompile Include="src\util\bprint.c">
+      <Filter>Source Files\util</Filter>
+    </ClCompile>
+    <ClCompile Include="src\util\simCommunication.c">
+      <Filter>Source Files\util</Filter>
+    </ClCompile>
+    <ClCompile Include="src\kernel\event_groups.c">
+      <Filter>Source Files\kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\generatedCode\Basiselemente\PresenceDetector.cpp">
+      <Filter>Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="src\application.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

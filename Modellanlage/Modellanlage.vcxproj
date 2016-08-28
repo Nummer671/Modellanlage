@@ -1,0 +1,128 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{B828EB42-22F5-4916-BF52-FA24D17D1171}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>Modellanlage</RootNamespace>
+    <ProjectName>Modellanlage</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level4</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)include;$(ProjectDir)include\kernel</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <MinimalRebuild>false</MinimalRebuild>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)include;$(ProjectDir)include\kernel</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\generatedCode\Basiselemente\PresenceDetector.h" />
+    <ClInclude Include="ComCodes.h" />
+    <ClInclude Include="include\FreeRTOSConfig.h" />
+    <ClInclude Include="include\kernel\croutine.h" />
+    <ClInclude Include="include\kernel\deprecated_definitions.h" />
+    <ClInclude Include="include\kernel\event_groups.h" />
+    <ClInclude Include="include\kernel\FreeRTOS.h" />
+    <ClInclude Include="include\kernel\list.h" />
+    <ClInclude Include="include\kernel\mpu_wrappers.h" />
+    <ClInclude Include="include\kernel\portable.h" />
+    <ClInclude Include="include\kernel\portable\portmacro.h" />
+    <ClInclude Include="include\kernel\projdefs.h" />
+    <ClInclude Include="include\kernel\queue.h" />
+    <ClInclude Include="include\kernel\semphr.h" />
+    <ClInclude Include="include\kernel\StackMacros.h" />
+    <ClInclude Include="include\kernel\task.h" />
+    <ClInclude Include="include\kernel\timers.h" />
+    <ClInclude Include="include\trace\frtos_pipe.h" />
+    <ClInclude Include="include\trace\global_switch.h" />
+    <ClInclude Include="include\trace\logTraceMacros.h" />
+    <ClInclude Include="include\util\bprint.h" />
+    <ClInclude Include="include\util\simCommunication.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\generatedCode\Basiselemente\PresenceDetector.cpp" />
+    <ClCompile Include="src\application.cpp" />
+    <ClCompile Include="src\kernel\croutine.c" />
+    <ClCompile Include="src\kernel\event_groups.c" />
+    <ClCompile Include="src\kernel\list.c" />
+    <ClCompile Include="src\kernel\portable\MemMang\heap_4.c" />
+    <ClCompile Include="src\kernel\portable\port.c" />
+    <ClCompile Include="src\kernel\queue.c" />
+    <ClCompile Include="src\kernel\tasks.c" />
+    <ClCompile Include="src\kernel\timers.c" />
+    <ClCompile Include="src\trace\frtos_pipe.c" />
+    <ClCompile Include="src\trace\logTraceMacros.c" />
+    <ClCompile Include="src\trace\main.c" />
+    <ClCompile Include="src\util\bprint.c" />
+    <ClCompile Include="src\util\simCommunication.c" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
