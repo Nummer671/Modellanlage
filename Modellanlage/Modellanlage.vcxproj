@@ -106,7 +106,6 @@
     <ClInclude Include="include\util\simCommunication.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\generatedCode\Basiselemente\PresenceDetector.cpp" />
     <ClCompile Include="src\application.cpp" />
     <ClCompile Include="src\kernel\croutine.c" />
     <ClCompile Include="src\kernel\event_groups.c" />

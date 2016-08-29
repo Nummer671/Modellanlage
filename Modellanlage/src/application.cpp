@@ -10,10 +10,13 @@ Version:	2.1.0
 #include "task.h"
 #include "util\bprint.h"
 #include "util\simCommunication.h"
+#include "ComCodes.h"
 
 using namespace std;
 
-void scalefoo(void* pvParameters);
+void loadingStationFunc(void* pvParameters);
+
+xQueueHandle statusQueue;
 
 /******* Insert your code in this task **********************************************************/
 extern "C" void taskApplication(void *pvParameters)
@@ -21,6 +24,8 @@ extern "C" void taskApplication(void *pvParameters)
 	(void*)pvParameters; // Prevent unused warning
 
 	int myBuffer;
+	void* pvMyBuffer = &myBuffer;
+	
 	const char scale[]			= "scale";
 	const char waitStation[]	= "waitStation";
 	const char startArea[]		= "startArea";
@@ -29,21 +34,43 @@ extern "C" void taskApplication(void *pvParameters)
 	
 	vTaskPrioritySet(NULL, tskIDLE_PRIORITY + 5);
 
-	xTaskCreate(scalefoo, scale, configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 4, NULL);
+	//Initialisieren des Simulators
+	statusQueue = initSystem();
+	xQueueReceive(statusQueue, &myBuffer, portMAX_DELAY);
+	if (myBuffer == 30) {
+		printf("Simulation erfolgreich gestartet. \n");
+		xTaskCreate(loadingStationFunc, loadStation, configMINIMAL_STACK_SIZE, pvMyBuffer, tskIDLE_PRIORITY + 4, NULL);
+	}
+	else puts("Simulation konnte nicht gestartet werden. \n");
+	
 
 	// Start des Steuerprogramms
 	while (true)
 	{
 
-		xQueueReceive(initSystem(), &myBuffer, portMAX_DELAY);
+		xQueueReceive(statusQueue, &myBuffer, portMAX_DELAY);
 
 		//Überprüfen, ob die Simulation erfolgreich gestartet wurde
-		if (myBuffer == 30){
+		/*if (myBuffer == 30){
 			printf("Simulation erfolgreich gestartet");
 		}
 		else printf("Fehler beim Starten der Simulation");
-		vTaskDelay(1000);
+		vTaskDelay(1000);*/
 	}
 			
 
+}
+
+void loadingStationFunc(void* pvParameters){
+	int status = -1;
+	while (true)
+	{
+		status = *(int*)pvParameters;
+		if (status == START_AREA_ENTRY){
+			puts("Fahrzeug auf Startposition. \n");
+			taskYIELD();
+		}
+		else puts("Kein Fahrzeug erkannt. \n");
+		vTaskDelay(100);
+	}
 }

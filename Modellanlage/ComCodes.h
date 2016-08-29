@@ -11,7 +11,7 @@ Kommunikation mit dem Modellbahnsimulator festgelegt
 #define START_AREA_ENTRY	0
 #define START_AREA_EXIT		1
 
-#define SWITCH_LOADSTATION 	10
+#define SWITCH_LOAD_PLACE	10
 #define LOAD_PLACE_1_STOP	1
 #define LOAD_PLACE_1_ENTRY	2
 #define LOAD_PLACE_1_EXIT	3

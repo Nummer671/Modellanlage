@@ -152,9 +152,6 @@
     <ClCompile Include="src\kernel\event_groups.c">
       <Filter>Source Files\kernel</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\generatedCode\Basiselemente\PresenceDetector.cpp">
-      <Filter>Classes</Filter>
-    </ClCompile>
     <ClCompile Include="src\application.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
