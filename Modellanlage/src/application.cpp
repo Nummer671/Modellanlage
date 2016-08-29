@@ -35,6 +35,7 @@ extern "C" void taskApplication(void *pvParameters)
 	vTaskPrioritySet(NULL, tskIDLE_PRIORITY + 5);
 
 	//Initialisieren des Simulators
+	//initSystem() gibt die Message Queue zurück, auf der die Nachrichten des Simulators empfangen werden.
 	statusQueue = initSystem();
 	xQueueReceive(statusQueue, &myBuffer, portMAX_DELAY);
 	if (myBuffer == 30) {
