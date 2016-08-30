@@ -12,6 +12,8 @@ Version:	2.1.0
 #include "util\simCommunication.h"
 #include "ComCodes.h"
 
+//test brench
+
 using namespace std;
 
 //Funktionsprototypen
