@@ -40,8 +40,8 @@
     <Filter Include="Header Files\util">
       <UniqueIdentifier>{11c5ef66-8138-4f5c-a48a-6a9ad45fcdbe}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Classes">
-      <UniqueIdentifier>{aea7dc67-d282-4746-9fc2-aedf5a8f4073}</UniqueIdentifier>
+    <Filter Include="Functions">
+      <UniqueIdentifier>{c8e39307-d8e7-4e1d-a03d-c710ada9e54f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -111,6 +111,15 @@
     <ClInclude Include="ComCodes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="WaitStation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="StartArea.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LoadingStation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\kernel\croutine.c">
@@ -154,6 +163,18 @@
     </ClCompile>
     <ClCompile Include="src\application.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="WaitStation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="StartArea.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LoadingStation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="StartAreaFoo.cpp">
+      <Filter>Functions</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

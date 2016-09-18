@@ -104,8 +104,12 @@
     <ClInclude Include="include\trace\logTraceMacros.h" />
     <ClInclude Include="include\util\bprint.h" />
     <ClInclude Include="include\util\simCommunication.h" />
+    <ClInclude Include="LoadingStation.h" />
+    <ClInclude Include="StartArea.h" />
+    <ClInclude Include="WaitStation.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="LoadingStation.cpp" />
     <ClCompile Include="src\application.cpp" />
     <ClCompile Include="src\kernel\croutine.c" />
     <ClCompile Include="src\kernel\event_groups.c" />
@@ -120,6 +124,9 @@
     <ClCompile Include="src\trace\main.c" />
     <ClCompile Include="src\util\bprint.c" />
     <ClCompile Include="src\util\simCommunication.c" />
+    <ClCompile Include="StartArea.cpp" />
+    <ClCompile Include="StartAreaFoo.cpp" />
+    <ClCompile Include="WaitStation.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
