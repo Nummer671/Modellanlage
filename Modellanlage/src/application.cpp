@@ -27,12 +27,16 @@ xQueueHandle loadQueue;
 //Semaphores
 SemaphoreHandle_t loadingStationCount;
 SemaphoreHandle_t loadingStationAccess;
+SemaphoreHandle_t scaleAccess;
+
 
 //TaskHandle
 TaskHandle_t startArea_t;
 TaskHandle_t loadStation_t;
 
-
+//Station der Modellanlage
+StartArea Start1;
+LoadingStation Load1;
 
 /******* Insert your code in this task **********************************************************/
 extern "C" void taskApplication(void *pvParameters)
@@ -97,9 +101,10 @@ void startAreaFunc(void* pvParameters){
 	BaseType_t status = -1;
 	int error = -1;
 	int buffer;
-	
-	//Zwei Semaphoren, eine für die Zufahrt zur Beladestation und eine für die freien Plätze auf der Beladestation
-	BaseType_t roadwayFree, loadPlaceFree;
+	int16_t error = -1;
+	bool vehicleStarted = false;
+	bool roadwayStat = false;
+	bool stopActor = true;
 
 	while (true)
 	{
@@ -107,34 +112,41 @@ void startAreaFunc(void* pvParameters){
 		status = xQueueReceive(startQueue, &buffer, portMAX_DELAY);
 		printf("Startbereich gestartet.\n");
 
-		//Wenn ein Fahrzeug im Startbereich steht, kann es versuchen die Semaphore zu bekommen
-		//Überprüfen, ob die Semaphore frei ist.
-		if (buffer == START_AREA_ENTRY){
-			if (xSemaphoreTake(loadingStationAccess, 20) == pdFALSE) {
-				sendTo(START_AREA_STOP, STOP_ACTIVE);
-				printf("Weg nicht frei.\n");
+		//Überprüfen, ob die Strecke frei ist.
+		roadwayStat = Load1.getRoadwayStat();
+
+		switch (status){
+		case START_AREA_ENTRY:
+			if (roadwayStat == false) {
+				printf("Strecke belegt.\n");
+				vTaskDelay(100);
 			}
 			else{
-				//Überprüfen, ob ein Beladeplatz frei ist
-				//Falls, ja darf das Fahrzeug starten
-				sendTo(START_AREA_STOP, STOP_ACTIVE);
-				printf("Fahrzeug im Startbereich\n");
-				if (xSemaphoreTake(loadingStationCount, 100) == pdTRUE) sendTo(START_AREA_STOP, STOP_INACTIVE);
-				else {
-					sendTo(START_AREA_STOP, STOP_ACTIVE);
-					printf("Alle Stationen belegt.\n");
+				error = Load1.stationReserve();
+				if (error == -1) printf("Es konnte keine Station reserviert werden.\n");
+				else{
+					sendTo(START_AREA_STOP, STOP_INACTIVE);
+					Load1.setRoadwayStat(false);
+					stopActor = false;
+					vTaskDelay(10);		//Verzögerung, damit der LKW ausreichend Zeit zum Starten hat.
 				}
 			}
-		}
-		else if (buffer == START_AREA_EXIT)
-		{
-			sendTo(START_AREA_STOP, STOP_ACTIVE);
-		}
-		else vTaskDelay(5); /*allow task switch*/
-		//vTaskDelay(5);
-		
-	}
+			break;
 
+		case START_AREA_EXIT:
+			if (stopActor) vTaskDelay(20);
+			else{
+				sendTo(START_AREA_STOP, STOP_ACTIVE);
+				stopActor = true;
+			}
+			break;
+
+		default:
+			printf("Startbereich idle.\n");
+			vTaskDelay(100);
+			break;
+		}
+	}
 }
 
 
@@ -152,52 +164,74 @@ void loadingStationFunc(void* pvParameters){
 		status = xQueueReceive(loadQueue, &buffer, portMAX_DELAY);
 		printf("Beladestation aktiv.\n");
 		//Beladestation 1
-		if (buffer == LOAD_PLACE_1_ENTRY && loadPlace1){
+		if (status == LOAD_PLACE_1_ENTRY && loadPlace1){
 			loadPlace1 = false;
-			xSemaphoreGive(loadingStationAccess);
+			Load1.setRoadwayStat(true);
 			sendTo(SWITCH_LOAD_PLACE, LOAD_PLACE_2);
 			printf("Weiche nach 2 gestellt.\n");
 			sendTo(LOADING_1_START, LOADING_1_START);
 			printf("Beladen 1 gestartet.\n");
+			xSemaphoreGive(loadingStationAccess);
+			printf("Start -> Beladestation frei.\n");
+			vTaskDelay(100);
 		}
 		//Beladen 1 beendet?
-		else if (buffer == LOADING_1_END ){
-			sendTo(LOAD_PLACE_1_STOP, STOP_INACTIVE);
+		else if (status == LOADING_1_END){
+			printf("Beladen beendet.\n");
+
+			//Prüfen, ob die Waage befahren werden kann?
+			if (xSemaphoreTake(scaleAccess, 500)) {
+				sendTo(LOAD_PLACE_1_STOP, STOP_INACTIVE);
+				//vTaskDelay(10);
+			}
+
 		}
 		// Beladestation 1 verlassen?
-		else if (buffer == LOAD_PLACE_1_EXIT && !loadPlace1){
+		else if (status == LOAD_PLACE_1_EXIT && !loadPlace1){
 			sendTo(LOAD_PLACE_1_STOP, STOP_ACTIVE);
 			sendTo(SWITCH_LOAD_PLACE, LOAD_PLACE_1);
 			loadPlace1 = true;
 			xSemaphoreGive(loadingStationCount);
 			printf("Zählsemaphore zurückgeben.\n");
-		}
-				
-		//Beladestation 2
-		else if (buffer == LOAD_PLACE_2_ENTRY && loadPlace2){
-			loadPlace2 = false;
 			xSemaphoreGive(loadingStationAccess);
+			printf("Start -> Beladestation frei.\n");
+		}
+
+		//Beladestation 2
+		else if (status == LOAD_PLACE_2_ENTRY && loadPlace2){
+			loadPlace2 = false;
+			Load1.setRoadwayStat(true);
 			sendTo(SWITCH_LOAD_PLACE, LOAD_PLACE_1);
 			printf("Weiche nach 1 gestellt.\n");
 			sendTo(LOADING_2_START, LOADING_2_START);
 			printf("Beladen 2 gestartet.\n");
+			xSemaphoreGive(loadingStationAccess);
+			printf("Start -> Beladestation frei.\n");
+			vTaskDelay(100);
 		}
 		//Beladen 2 beendet?
-		else if (buffer == LOADING_2_END){
-			sendTo(LOAD_PLACE_2_STOP, STOP_INACTIVE);
+		else if (status == LOADING_2_END){
+
+			if (xSemaphoreTake(scaleAccess, 500)) {
+				sendTo(LOAD_PLACE_2_STOP, STOP_INACTIVE);
+				//vTaskDelay(10);
+			}
 		}
 		// Beladestation 2 verlassen?
-		else if (buffer == LOAD_PLACE_2_EXIT && !loadPlace2){
+		else if (status == LOAD_PLACE_2_EXIT && !loadPlace2){
 			sendTo(LOAD_PLACE_2_STOP, STOP_ACTIVE);
 			sendTo(SWITCH_LOAD_PLACE, LOAD_PLACE_2);
 			loadPlace2 = true;
 			xSemaphoreGive(loadingStationCount);
 			printf("Zählsemaphore zurückgeben.\n");
+			xSemaphoreGive(loadingStationAccess);
+			printf("Start -> Beladestation frei.\n");
+
 		}
 		//Warten
-		else vTaskDelay(5); /*allow task switch*/
-		
-		//Taskwechsel erzwingen
-		//taskYIELD();
+		else {
+			printf("Beladestation idle.\n");
+			vTaskDelay(10);
+		}
 	}
 }
