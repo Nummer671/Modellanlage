@@ -106,6 +106,7 @@
     <ClInclude Include="include\util\simCommunication.h" />
     <ClInclude Include="LoadingStation.h" />
     <ClInclude Include="StartArea.h" />
+    <ClInclude Include="ThreePlaceWaitStation.h" />
     <ClInclude Include="WaitStation.h" />
   </ItemGroup>
   <ItemGroup>
@@ -126,6 +127,7 @@
     <ClCompile Include="src\util\simCommunication.c" />
     <ClCompile Include="StartArea.cpp" />
     <ClCompile Include="StartAreaFoo.cpp" />
+    <ClCompile Include="ThreePlaceWaitStation.cpp" />
     <ClCompile Include="WaitStation.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
