@@ -102,6 +102,7 @@ void startAreaFunc(void* pvParameters){
 	int16_t error = -1;
 	bool vehicleStarted = false;
 	bool statusRoadway = true;
+	bool vehicleReady4Start = false;
 	bool stopActor = true;
 	bool loadPlace1 = true;
 	bool loadPlace2 = true;
@@ -111,17 +112,27 @@ void startAreaFunc(void* pvParameters){
 	while (true)
 	{
 		status = *(int*)pvParameters;
-		printf("Task 1 gestartet.\n");
+		//printf("Task 1 gestartet.\n");
 		
-		switch (status){
-		case START_AREA_ENTRY:
+		if (status == START_AREA_EXIT){
+			//if (stopActor == false){
+				printf("Startbereich verlassen.\n");
+				stopActor = true;
+				sendTo(START_AREA_STOP, STOP_ACTIVE);
+			//}
+			//else vTaskDelay(100);
+		}
+		
+		if((status == START_AREA_ENTRY) ){//|| (vehicleReady4Start == TRUE)){
 			//Überprüfen, ob die Strecke frei ist.
 			statusRoadway = Load1.getRoadwayStat();
 			if (statusRoadway == false) {
 				printf("Strecke belegt.\n");
 				vTaskDelay(10);
+				vehicleReady4Start = TRUE;
 			}
 			else{
+				vehicleReady4Start = FALSE;
 				statusLoadPlace = Load1.loadPlaceReserve();
 				if (statusLoadPlace == 0 || statusLoadPlace == 1){
 					//statusRoadway = false;
@@ -135,16 +146,10 @@ void startAreaFunc(void* pvParameters){
 				//error = Load1.stationReserve();
 				//if (error == -1) printf("Es konnte keine Station reserviert werden.\n");
 			}
-			break;
+		}
 
-		case START_AREA_EXIT:
-			if (stopActor == false){
-				printf("Startbereich verlassen.\n");
-				stopActor = true;
-				sendTo(START_AREA_STOP, STOP_ACTIVE);
-			}
-			else vTaskDelay(100);
-			break;
+		switch (status){
+			
 
 		case LOAD_PLACE_1_ENTRY:
 			if (loadPlace1){
@@ -213,7 +218,7 @@ void startAreaFunc(void* pvParameters){
 			break;
 
 		default:
-			printf("Task 1 idle.\n");
+			//printf("Task 1 idle.\n");
 			vTaskDelay(1000);
 			break;
 		}
