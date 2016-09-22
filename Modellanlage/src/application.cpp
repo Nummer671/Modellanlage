@@ -394,6 +394,7 @@ void unloadingStationFunc(void* pvParameters){
 
 		case UNLOAD_PLACE_3_ENTRY:
 			xSemaphoreGive(unloadingStationAccess);
+			xSemaphoreGive(unloadSwitch2);
 			//sendTo(SWITCH_UNLOAD_1, UNLOAD_PLACE_1);		/*Entladestation auf Platz 1 einstellen*/
 			//sendTo(SWITCH_UNLOAD_2, UNLOAD_STRAIGHT_2);
 			sendTo(UNLOADING_2_START, UNLOADING_2_START);	/*Fahrzeug entladen*/
@@ -439,7 +440,6 @@ void unloadingStationFunc(void* pvParameters){
 			break;
 
 		case UNLOAD_PLACE_3_EXIT:
-			xSemaphoreGive(unloadSwitch2);
 			UnloadingStation.stationRelease(2);
 			sendTo(UNLOAD_PLACE_3_STOP, STOP_ACTIVE);
 			break;
