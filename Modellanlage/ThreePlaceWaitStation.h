@@ -27,6 +27,12 @@ public:
 	um anzuzeigen, dass die Semaphore erfolgreich freigegeben wurde*/
 	int16_t stationRelease(int16_t which);
 
+	/*Funktion zum Reservieren der Weiche*/
+	int16_t switch2Reserve(void);
+
+	/*Funktion zum Freigeben der Weiche*/
+	int16_t switch2Release(void);
+
 private:
 	struct poolControl
 	{
@@ -35,5 +41,9 @@ private:
 		enum state avail[MAX_RESOURCES];
 	} stationContr;
 
+	struct switchControl{
+		SemaphoreHandle_t guard;
+		enum state avail;
+	} switch2;
 };
 

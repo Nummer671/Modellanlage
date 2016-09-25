@@ -1,4 +1,5 @@
 #include "ThreePlaceWaitStation.h"
+#include <stdio.h>
 
 
 ThreePlaceWaitStation::ThreePlaceWaitStation()
@@ -18,9 +19,12 @@ int16_t ThreePlaceWaitStation::stationInit(void){
 	stationContr.count = xSemaphoreCreateCounting(MAX_RESOURCES, MAX_RESOURCES);
 	if (stationContr.count == NULL) rc = -1;
 	stationContr.guard = xSemaphoreCreateMutex();
-	if (stationContr.count == NULL) rc = -1;
+	if (stationContr.guard == NULL) rc = -1;
+	switch2.guard = xSemaphoreCreateMutex();
+	if (switch2.guard== NULL) rc = -1;
 
 	/*init Resources*/
+	switch2.avail == FREE;
 	for (k = 0; k < MAX_RESOURCES; k++){
 		stationContr.avail[k] = FREE;
 	}
@@ -33,9 +37,11 @@ int16_t ThreePlaceWaitStation::stationReserve(void){
 	int16_t k;
 
 	/*request station*/
+	printf("Warte auf freie Entladestation.\n");
 	rc = xSemaphoreTake(stationContr.count, portMAX_DELAY);
 	if (rc == pdFALSE) retcode = -1;
 	else{
+		printf("Freie Station bekommen.\n");
 		/*enter critical section*/
 		rc = xSemaphoreTake(stationContr.guard, portMAX_DELAY);
 		if (rc == pdFALSE) retcode = -1;
@@ -64,6 +70,7 @@ int16_t ThreePlaceWaitStation::stationRelease(int16_t which){
 	if (which >= 0 && which <  MAX_RESOURCES){
 		stationContr.avail[which] = FREE;
 		rc = xSemaphoreGive(stationContr.count);
+		printf("Entladeplatz freigegeben.\n");
 	}
 	else rc = -1;
 	return rc;

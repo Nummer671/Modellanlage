@@ -41,6 +41,7 @@ SemaphoreHandle_t unloadingStationCount;
 SemaphoreHandle_t unloadingStationAccess;
 SemaphoreHandle_t waitStationAccess;
 SemaphoreHandle_t unloadSwitch2;
+SemaphoreHandle_t unloadPlace3Access;
 
 //TaskHandle
 TaskHandle_t startArea_t;
@@ -114,9 +115,9 @@ extern "C" void taskApplication(void *pvParameters)
 		printf("Simulation erfolgreich gestartet. \n");
 		xTaskCreate(startAreaFunc, startArea, configMINIMAL_STACK_SIZE, pvMyBuffer, tskIDLE_PRIORITY + 2, &startArea_t);
 		xTaskCreate(loadingStationFunc, loadStation, configMINIMAL_STACK_SIZE, pvMyBuffer, tskIDLE_PRIORITY + 1, &loadStation_t);
-		xTaskCreate(scaleFunc, scale, configMINIMAL_STACK_SIZE, pvMyBuffer, tskIDLE_PRIORITY + 4, &scale_t);
-		xTaskCreate(unloadingStationFunc, unloadStation, configMINIMAL_STACK_SIZE, pvMyBuffer, tskIDLE_PRIORITY + 1, &unloadStation_t);
-		xTaskCreate(waitStationFunc, waitStation, configMINIMAL_STACK_SIZE, pvMyBuffer, tskIDLE_PRIORITY + 3, &waitStation_t);
+		xTaskCreate(scaleFunc, scale, configMINIMAL_STACK_SIZE, pvMyBuffer, tskIDLE_PRIORITY + 5, &scale_t);
+		xTaskCreate(unloadingStationFunc, unloadStation, configMINIMAL_STACK_SIZE, pvMyBuffer, tskIDLE_PRIORITY + 3, &unloadStation_t);
+		xTaskCreate(waitStationFunc, waitStation, configMINIMAL_STACK_SIZE, pvMyBuffer, tskIDLE_PRIORITY + 4, &waitStation_t);
 	}
 	else puts("Simulation konnte nicht erfolgreich gestartet werden. \n");
 
@@ -125,7 +126,7 @@ extern "C" void taskApplication(void *pvParameters)
 	while (true)
 	{
 		if (xQueueReceive(statusQueue, &myBuffer, portMAX_DELAY)){
-			printf("Daten %i empfangen. \n", myBuffer);
+			//printf("Daten %i empfangen. \n", myBuffer);
 			startQueueBuffer = myBuffer;
 			loadQueueBuffer = myBuffer;
 			scaleQueueBuffer = myBuffer;
@@ -156,9 +157,9 @@ void startAreaFunc(void* pvParameters){
 	{
 		//status = *(int*)pvParameters;
 
-		printf("Startbereich gestartet.\n");
+		//printf("Startbereich gestartet.\n");
 		xQueueReceive(startQueue, &buffer, portMAX_DELAY); /*Task wartet bei jedem Schleifendurchlauf auf den Empfang eines neuen Ereignisses*/
-		printf("Startbereich %i empfangen.\n", buffer);
+		//printf("Startbereich %i empfangen.\n", buffer);
 
 		switch (buffer){
 		case START_AREA_ENTRY:
@@ -170,7 +171,7 @@ void startAreaFunc(void* pvParameters){
 			else{
 				//statusLoadPlace = Load1.loadPlaceReserve();
 				if (xSemaphoreTake(loadingStationCount,portMAX_DELAY)==pdTRUE){
-					printf("Fahrzeug gestartet.\n");
+					//printf("Fahrzeug gestartet.\n");
 					sendTo(START_AREA_STOP, STOP_INACTIVE);
 				}
 				else printf("Keine Station frei.\n");
@@ -182,7 +183,7 @@ void startAreaFunc(void* pvParameters){
 			break;
 
 		default:
-			printf("Startbereich idle.\n");
+			//printf("Startbereich idle.\n");
 			vTaskDelay(5); /*allow Task switch*/
 			break;
 		}
@@ -207,25 +208,25 @@ void loadingStationFunc(void* pvParameters){
 	while (true)
 	{
 		//status = *(int*)pvParameters;
-		printf("Beladestation aktiv.\n");
+		//printf("Beladestation aktiv.\n");
 		xQueueReceive(loadQueue, &buffer, portMAX_DELAY); /*Task wartet bei jedem Schleifendurchlauf auf den Empfang eines neuen Ereignisses*/
-		printf("Beladestation %i empfangen.\n", buffer);
+		//printf("Beladestation %i empfangen.\n", buffer);
 
 		//Beladestation 1
 		if (buffer == LOAD_PLACE_1_ENTRY && loadPlace1){
 			loadPlace1 = false;
 			Load1.setRoadwayStat(true);
 			sendTo(SWITCH_LOAD_PLACE, LOAD_PLACE_2);
-			printf("Weiche nach 2 gestellt.\n");
+			//printf("Weiche nach 2 gestellt.\n");
 			sendTo(LOADING_1_START, LOADING_1_START);
-			printf("Beladen 1 gestartet.\n");
+			//printf("Beladen 1 gestartet.\n");
 			xSemaphoreGive(loadingStationAccess);
-			printf("Start -> Beladestation frei.\n");
+			//printf("Start -> Beladestation frei.\n");
 			//vTaskDelay(100);
 		}
 		//Beladen 1 beendet?
 		else if (buffer == LOADING_1_END){
-			printf("Beladen beendet.\n");
+			//printf("Beladen beendet.\n");
 
 			//Prüfen, ob die Waage befahren werden kann?
 			if (xSemaphoreTake(scaleAccess, portMAX_DELAY)==pdTRUE) {
@@ -240,9 +241,9 @@ void loadingStationFunc(void* pvParameters){
 			sendTo(SWITCH_LOAD_PLACE, LOAD_PLACE_1);
 			loadPlace1 = true;
 			xSemaphoreGive(loadingStationCount);
-			printf("Zählsemaphore zurückgeben.\n");
+			//printf("Zählsemaphore zurückgeben.\n");
 			//xSemaphoreGive(loadingStationAccess);
-			printf("Start -> Beladestation frei.\n");
+			//printf("Start -> Beladestation frei.\n");
 		}
 
 		//Beladestation 2
@@ -250,11 +251,11 @@ void loadingStationFunc(void* pvParameters){
 			loadPlace2 = false;
 			Load1.setRoadwayStat(true);
 			sendTo(SWITCH_LOAD_PLACE, LOAD_PLACE_1);
-			printf("Weiche nach 1 gestellt.\n");
+			//printf("Weiche nach 1 gestellt.\n");
 			sendTo(LOADING_2_START, LOADING_2_START);
-			printf("Beladen 2 gestartet.\n");
+			//printf("Beladen 2 gestartet.\n");
 			xSemaphoreGive(loadingStationAccess);
-			printf("Start -> Beladestation frei.\n");
+			//printf("Start -> Beladestation frei.\n");
 			//vTaskDelay(100);
 		}
 		//Beladen 2 beendet?
@@ -271,14 +272,14 @@ void loadingStationFunc(void* pvParameters){
 			sendTo(SWITCH_LOAD_PLACE, LOAD_PLACE_2);
 			loadPlace2 = true;
 			xSemaphoreGive(loadingStationCount);
-			printf("Zählsemaphore zurückgeben.\n");
+			//printf("Zählsemaphore zurückgeben.\n");
 			//xSemaphoreGive(loadingStationAccess);
-			printf("Start -> Beladestation frei.\n");
+			//printf("Start -> Beladestation frei.\n");
 
 		}
 		//Warten
 		else {
-			printf("Beladestation idle.\n");
+			//printf("Beladestation idle.\n");
 			vTaskDelay(5);	/*allow Task switch*/
 		}
 	}
@@ -297,9 +298,9 @@ void scaleFunc(void* pvParameters){
 	{
 		//status = *(int*)pvParameters;
 
-		printf("Waage aktiv.\n");
+		//printf("Waage aktiv.\n");
 		xQueueReceive(scaleQueue, &buffer, portMAX_DELAY); /*Task wartet bei jedem Schleifendurchlauf auf den Empfang eines neuen Ereignisses*/
-		printf("Waage %i empfangen.\n", buffer);
+		//printf("Waage %i empfangen.\n", buffer);
 
 		//Fahrzeug auf Waage eingefahren Richtung Startbereich?
 		if (buffer == SCALE_START_ENTRY && scaleAvail){
@@ -313,6 +314,7 @@ void scaleFunc(void* pvParameters){
 			sendTo(SCALE_START_STOP, STOP_ACTIVE);
 			xSemaphoreGive(scaleAccess);
 			scaleAvail = true;
+			directionStart = false;
 		}
 
 		//Wiegevorgang beendet?
@@ -331,13 +333,21 @@ void scaleFunc(void* pvParameters){
 					sendTo(SCALE_START_STOP, STOP_INACTIVE);
 				}
 				else if (rc == 2){
+					printf("Waage wartet auf Weichen-Semaphore.\n");
 					if (xSemaphoreTake(unloadSwitch2, portMAX_DELAY) == pdTRUE){
+						printf("Waage hat die Weichen-Semaphore bekommen.\n");
 						sendTo(SWITCH_UNLOAD_2, UNLOAD_PLACE_3);
 						sendTo(SWITCH_UNLOAD_1, UNLOAD_STRAIGHT_1);
 						sendTo(SCALE_START_STOP, STOP_INACTIVE);
 					}
 				}
+				else puts("Ein Fehler ist aufgetreten.\n");
 			}
+		}
+
+		else if (buffer == UNLOAD_PLACE_3_ENTRY){
+			xSemaphoreGive(unloadSwitch2);
+			printf("Weichen-Semaphore frei.\n");
 		}
 
 		//Fahrzeug auf Waage eingefahren Richtung Entladenbereich?
@@ -351,7 +361,6 @@ void scaleFunc(void* pvParameters){
 			sendTo(SCALE_UNLOAD_STOP, STOP_ACTIVE);
 			xSemaphoreGive(scaleAccess);
 			scaleAvail = true;
-			directionStart = false;
 		}
 
 		else vTaskDelay(5); /*allow Task switch*/
@@ -373,9 +382,9 @@ void unloadingStationFunc(void* pvParameters){
 	/*Endlosschleife für die Funktion*/
 	while (true)
 	{
-		printf("Entladestation aktiv.\n");
+		//printf("Entladestation aktiv.\n");
 		xQueueReceive(unloadQueue, &buffer, portMAX_DELAY);
-		printf("Entladestation %i empfangen.\n", buffer);
+		//printf("Entladestation %i empfangen.\n", buffer);
 
 		switch (buffer)
 		{
@@ -393,8 +402,8 @@ void unloadingStationFunc(void* pvParameters){
 			break;
 
 		case UNLOAD_PLACE_3_ENTRY:
+			//xSemaphoreGive(unloadSwitch2);
 			xSemaphoreGive(unloadingStationAccess);
-			xSemaphoreGive(unloadSwitch2);
 			//sendTo(SWITCH_UNLOAD_1, UNLOAD_PLACE_1);		/*Entladestation auf Platz 1 einstellen*/
 			//sendTo(SWITCH_UNLOAD_2, UNLOAD_STRAIGHT_2);
 			sendTo(UNLOADING_2_START, UNLOADING_2_START);	/*Fahrzeug entladen*/
@@ -402,7 +411,9 @@ void unloadingStationFunc(void* pvParameters){
 
 		case UNLOADING_1_END:
 			if (xSemaphoreTake(waitStationAccess, portMAX_DELAY) == pdTRUE){
+				printf("Enladeplatz 1 wartet auf Semaphore.\n");
 				if (xSemaphoreTake(unloadSwitch2, portMAX_DELAY) == pdTRUE){
+					printf("Enladeplatz 1 hat die Semaphore bekommen.\n");
 					sendTo(SWITCH_UNLOAD_2, UNLOAD_STRAIGHT_2);
 					sendTo(UNLOAD_PLACE_1_STOP, STOP_INACTIVE);
 				}
@@ -412,13 +423,15 @@ void unloadingStationFunc(void* pvParameters){
 
 		case UNLOAD_PLACE_1_EXIT:
 			//xSemaphoreGive(unloadingStationCount);
-			UnloadingStation.stationRelease(0);
+			if(UnloadingStation.stationRelease(0)==-1) puts("Ein Fehler beim Freigeben ist aufgetreten.\n");
 			sendTo(UNLOAD_PLACE_1_STOP, STOP_ACTIVE);
 			break;
 
 		case UNLOADING_2_END:
 			if (xSemaphoreTake(waitStationAccess, portMAX_DELAY) == pdTRUE){
+				printf("Enladeplatz 2 wartet auf Semaphore.\n");
 				if (xSemaphoreTake(unloadSwitch2, portMAX_DELAY) == pdTRUE){
+					printf("Enladeplatz 2 hat die Semaphore bekommen.\n");
 					sendTo(SWITCH_UNLOAD_2, UNLOAD_STRAIGHT_2);
 					sendTo(UNLOAD_PLACE_2_STOP, STOP_INACTIVE);
 				}
@@ -428,7 +441,7 @@ void unloadingStationFunc(void* pvParameters){
 
 		case UNLOAD_PLACE_2_EXIT:
 			//xSemaphoreGive(unloadingStationCount);
-			UnloadingStation.stationRelease(1);
+			if (UnloadingStation.stationRelease(1) == -1) puts("Ein Fehler beim Freigeben ist aufgetreten.\n");
 			sendTo(UNLOAD_PLACE_2_STOP, STOP_ACTIVE);
 			break;
 
@@ -440,12 +453,12 @@ void unloadingStationFunc(void* pvParameters){
 			break;
 
 		case UNLOAD_PLACE_3_EXIT:
-			UnloadingStation.stationRelease(2);
+			if (UnloadingStation.stationRelease(2) == -1) puts("Ein Fehler beim Freigeben ist aufgetreten.\n");
 			sendTo(UNLOAD_PLACE_3_STOP, STOP_ACTIVE);
 			break;
 
 		default:
-			vTaskDelay(5);	/*allow task switch*/
+			vTaskDelay(2);	/*allow task switch*/
 			break;
 		}
 	}
@@ -461,13 +474,14 @@ void waitStationFunc(void* pvParameters){
 	/*Endlosschleife für die Funktion*/
 	while (true)
 	{
-		printf("Wartebereich aktiv.\n");
+		//printf("Wartebereich aktiv.\n");
 		xQueueReceive(waitQueue, &buffer, portMAX_DELAY);
-		printf("Wartebereich %i empfangen.\n", buffer);
+		//printf("Wartebereich %i empfangen.\n", buffer);
 
 		switch (buffer){
 		case WAITSTATION_ENTRY:
 			xSemaphoreGive(unloadSwitch2);
+			printf("WaitStation: Weichen Semaphore freigegeben.\n");
 			if (xSemaphoreTake(scaleAccess, portMAX_DELAY) == pdTRUE){
 				sendTo(WAITSTATION_STOP, STOP_INACTIVE);
 			}
