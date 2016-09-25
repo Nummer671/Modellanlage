@@ -138,6 +138,28 @@ extern "C" void taskApplication(void *pvParameters)
 			xQueueSend(scaleQueue, &scaleQueueBuffer, portMAX_DELAY);
 			xQueueSend(unloadQueue, &unloadQueueBuffer, portMAX_DELAY);
 			xQueueSend(waitQueue, &waitQueueBuffer, portMAX_DELAY);
+
+			switch (myBuffer){
+			case UNLOAD_PLACE_1_EXIT:
+				//xSemaphoreGive(unloadingStationCount);
+				if (UnloadingStation.stationRelease(0) == -1) puts("Ein Fehler beim Freigeben ist aufgetreten.\n");
+				sendTo(UNLOAD_PLACE_1_STOP, STOP_ACTIVE);
+				break;
+
+			case UNLOAD_PLACE_2_EXIT:
+				//xSemaphoreGive(unloadingStationCount);
+				if (UnloadingStation.stationRelease(1) == -1) puts("Ein Fehler beim Freigeben ist aufgetreten.\n");
+				sendTo(UNLOAD_PLACE_2_STOP, STOP_ACTIVE);
+				break;
+
+			case UNLOAD_PLACE_3_EXIT:
+				if (UnloadingStation.stationRelease(2) == -1) puts("Ein Fehler beim Freigeben ist aufgetreten.\n");
+				sendTo(UNLOAD_PLACE_3_STOP, STOP_ACTIVE);
+				break;
+			default:
+				vTaskDelay(1);
+				break;
+			}
 		}
 		else puts("keine Daten.\n");
 	}
@@ -203,7 +225,6 @@ void loadingStationFunc(void* pvParameters){
 	/*Initialisierung der Weiche*/
 	sendTo(SWITCH_LOAD_PLACE, LOAD_PLACE_1);
 
-	
 	//Task-Funktion
 	while (true)
 	{
@@ -227,7 +248,9 @@ void loadingStationFunc(void* pvParameters){
 		//Beladen 1 beendet?
 		else if (buffer == LOADING_1_END){
 			//printf("Beladen beendet.\n");
-
+			while (waitStationAccess == 0){
+				vTaskDelay(100);
+			}
 			//Prüfen, ob die Waage befahren werden kann?
 			if (xSemaphoreTake(scaleAccess, portMAX_DELAY)==pdTRUE) {
 				sendTo(LOAD_PLACE_1_STOP, STOP_INACTIVE);
@@ -260,7 +283,9 @@ void loadingStationFunc(void* pvParameters){
 		}
 		//Beladen 2 beendet?
 		else if (buffer == LOADING_2_END){
-
+			while (waitStationAccess == 0){
+				vTaskDelay(100);
+			}
 			if (xSemaphoreTake(scaleAccess, portMAX_DELAY) == pdTRUE) {
 				sendTo(LOAD_PLACE_2_STOP, STOP_INACTIVE);
 				//vTaskDelay(10);
@@ -277,6 +302,7 @@ void loadingStationFunc(void* pvParameters){
 			//printf("Start -> Beladestation frei.\n");
 
 		}
+
 		//Warten
 		else {
 			//printf("Beladestation idle.\n");
@@ -421,12 +447,6 @@ void unloadingStationFunc(void* pvParameters){
 			else printf("Unable to aquire semaphore waitStationAccess.\n");
 			break;
 
-		case UNLOAD_PLACE_1_EXIT:
-			//xSemaphoreGive(unloadingStationCount);
-			if(UnloadingStation.stationRelease(0)==-1) puts("Ein Fehler beim Freigeben ist aufgetreten.\n");
-			sendTo(UNLOAD_PLACE_1_STOP, STOP_ACTIVE);
-			break;
-
 		case UNLOADING_2_END:
 			if (xSemaphoreTake(waitStationAccess, portMAX_DELAY) == pdTRUE){
 				printf("Enladeplatz 2 wartet auf Semaphore.\n");
@@ -439,11 +459,6 @@ void unloadingStationFunc(void* pvParameters){
 			else printf("Unable to aquire semaphore waitStationAccess.\n");
 			break;
 
-		case UNLOAD_PLACE_2_EXIT:
-			//xSemaphoreGive(unloadingStationCount);
-			if (UnloadingStation.stationRelease(1) == -1) puts("Ein Fehler beim Freigeben ist aufgetreten.\n");
-			sendTo(UNLOAD_PLACE_2_STOP, STOP_ACTIVE);
-			break;
 
 		case UNLOADING_3_END:
 			if (xSemaphoreTake(waitStationAccess, portMAX_DELAY) == pdTRUE){
@@ -452,10 +467,7 @@ void unloadingStationFunc(void* pvParameters){
 			else printf("Unable to aquire semaphore waitStationAccess.\n");
 			break;
 
-		case UNLOAD_PLACE_3_EXIT:
-			if (UnloadingStation.stationRelease(2) == -1) puts("Ein Fehler beim Freigeben ist aufgetreten.\n");
-			sendTo(UNLOAD_PLACE_3_STOP, STOP_ACTIVE);
-			break;
+
 
 		default:
 			vTaskDelay(2);	/*allow task switch*/
