@@ -82,3 +82,8 @@ Kommunikation mit dem Modellbahnsimulator festgelegt
 
 #define UNLOADING_3_START 25
 #define UNLOADING_3_END 25
+
+/*******Simulation**********/
+
+#define STARTFREIGABE 30
+#define ENDSEQUENZ 31
