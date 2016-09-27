@@ -81,9 +81,9 @@ extern "C" void taskApplication(void *pvParameters)
 	//Erzeugen der Message Queues
 	startQueue = xQueueCreate(20, sizeof(int));
 	loadQueue = xQueueCreate(20, sizeof(int));
-	scaleQueue = xQueueCreate(20, sizeof(int));
+	scaleQueue = xQueueCreate(15, sizeof(int));
 	unloadQueue = xQueueCreate(20, sizeof(int));
-	waitQueue = xQueueCreate(20, sizeof(int));
+	waitQueue = xQueueCreate(15, sizeof(int));
 
 	//Initialisieren des Simulators
 	//initSystem() gibt die Message Queue zurück, auf der die Nachrichten des Simulators empfangen werden.
@@ -127,19 +127,28 @@ extern "C" void taskApplication(void *pvParameters)
 	{
 		if (xQueueReceive(statusQueue, &myBuffer, portMAX_DELAY)){
 			//printf("Daten %i empfangen. \n", myBuffer);
+
+			/*Die Ereignisse der Simulation werden in den Kommunikationsbuffer,
+			der einzelnen Tasks kopiert*/
 			startQueueBuffer = myBuffer;
 			loadQueueBuffer = myBuffer;
 			scaleQueueBuffer = myBuffer;
 			unloadQueueBuffer = myBuffer;
 			waitQueueBuffer = myBuffer;
 
-			xQueueSend(startQueue, &startQueueBuffer, portMAX_DELAY);
-			xQueueSend(loadQueue, &loadQueueBuffer, portMAX_DELAY);
-			xQueueSend(scaleQueue, &scaleQueueBuffer, portMAX_DELAY);
-			xQueueSend(unloadQueue, &unloadQueueBuffer, portMAX_DELAY);
-			xQueueSend(waitQueue, &waitQueueBuffer, portMAX_DELAY);
+			/*Senden der einzelnen Ereignisse an die jeweiligen Tasks.
+			Die TicksToWait wurden auf 10 eingestellt, damit die Empfangstask nicht
+			zulange blockiert, wenn eine Message Queue keine neuen Ereignisse entgegen nehmen kann.*/
+			xQueueSend(startQueue, &startQueueBuffer, 10);
+			xQueueSend(loadQueue, &loadQueueBuffer, 10);
+			xQueueSend(scaleQueue, &scaleQueueBuffer, 10);
+			xQueueSend(unloadQueue, &unloadQueueBuffer, 10);
+			xQueueSend(waitQueue, &waitQueueBuffer, 10);
 
-			switch (myBuffer){
+			/*Alle Ereignisse bei denen ein Fahrzeug die Station verlässt,
+			werden in der Application Task ausgewertet, damit die Reaktion immer rechtzeitig erfolgt.*/
+			switch (myBuffer)
+			{
 			case START_AREA_EXIT:
 				sendTo(START_AREA_STOP, STOP_ACTIVE);
 				break;
@@ -174,11 +183,6 @@ extern "C" void taskApplication(void *pvParameters)
 				sendTo(UNLOAD_PLACE_3_STOP, STOP_ACTIVE);
 				break;
 
-			case WAITSTATION_EXIT:
-				sendTo(WAITSTATION_STOP, STOP_ACTIVE);
-				xSemaphoreGive(waitStationAccess);
-				break;
-
 			case SCALE_START_EXIT:
 				sendTo(SCALE_START_STOP, STOP_ACTIVE);
 				xSemaphoreGive(scaleAccess);
@@ -187,7 +191,11 @@ extern "C" void taskApplication(void *pvParameters)
 			case SCALE_UNLOAD_EXIT:
 				sendTo(SCALE_UNLOAD_STOP, STOP_ACTIVE);
 				xSemaphoreGive(scaleAccess);
-				//directionUnload = false;
+				break;
+
+			case WAITSTATION_EXIT:
+				sendTo(WAITSTATION_STOP, STOP_ACTIVE);
+				xSemaphoreGive(waitStationAccess);
 				break;
 
 			case ENDSEQUENZ:
@@ -239,6 +247,10 @@ void startAreaFunc(void* pvParameters){
 			}
 			break;
 
+			//case START_AREA_EXIT:
+			//	sendTo(START_AREA_STOP, STOP_ACTIVE);
+			//	break;
+
 		default:
 			//printf("Startbereich idle.\n");
 			vTaskDelay(5); /*allow Task switch*/
@@ -270,19 +282,12 @@ void loadingStationFunc(void* pvParameters){
 
 		//Beladestation 1
 		if (buffer == LOAD_PLACE_1_ENTRY){
-			//loadPlace1 = false;
-			//Load1.setRoadwayStat(true);
 			sendTo(SWITCH_LOAD_PLACE, LOAD_PLACE_2);
-			//printf("Weiche nach 2 gestellt.\n");
 			sendTo(LOADING_1_START, LOADING_1_START);
-			//printf("Beladen 1 gestartet.\n");
 			xSemaphoreGive(loadingStationAccess);
-			//printf("Start -> Beladestation frei.\n");
-			//vTaskDelay(100);
 		}
 		//Beladen 1 beendet?
 		else if (buffer == LOADING_1_END){
-			//printf("Beladen beendet.\n");
 			//Prüfen, ob die Waage befahren werden kann?
 			if (xSemaphoreTake(unloadingStationCount, portMAX_DELAY) == pdTRUE) {
 				if (xSemaphoreTake(scaleAccess, portMAX_DELAY) == pdTRUE) sendTo(LOAD_PLACE_1_STOP, STOP_INACTIVE);
@@ -290,48 +295,30 @@ void loadingStationFunc(void* pvParameters){
 
 		}
 		// Beladestation 1 verlassen?
-		//else if (buffer == LOAD_PLACE_1_EXIT && !loadPlace1){
+		//else if (buffer == LOAD_PLACE_1_EXIT){
 		//	sendTo(LOAD_PLACE_1_STOP, STOP_ACTIVE);
 		//	sendTo(SWITCH_LOAD_PLACE, LOAD_PLACE_1);
-		//	loadPlace1 = true;
 		//	xSemaphoreGive(loadingStationCount);
-			//printf("Zählsemaphore zurückgeben.\n");
-			//xSemaphoreGive(loadingStationAccess);
-			//printf("Start -> Beladestation frei.\n");
 		//}
 
 		//Beladestation 2
 		else if (buffer == LOAD_PLACE_2_ENTRY){
-			//loadPlace2 = false;
-			//Load1.setRoadwayStat(true);
 			sendTo(SWITCH_LOAD_PLACE, LOAD_PLACE_1);
-			//printf("Weiche nach 1 gestellt.\n");
 			sendTo(LOADING_2_START, LOADING_2_START);
-			//printf("Beladen 2 gestartet.\n");
 			xSemaphoreGive(loadingStationAccess);
-			//printf("Start -> Beladestation frei.\n");
-			//vTaskDelay(100);
 		}
 		//Beladen 2 beendet?
 		else if (buffer == LOADING_2_END){
-			while (waitStationAccess == 0){
-				vTaskDelay(100);
-			}
 			if (xSemaphoreTake(unloadingStationCount, portMAX_DELAY) == pdTRUE) {
 				if (xSemaphoreTake(scaleAccess, portMAX_DELAY) == pdTRUE)  sendTo(LOAD_PLACE_2_STOP, STOP_INACTIVE);
 				//vTaskDelay(10);
 			}
 		}
 		// Beladestation 2 verlassen?
-		//else if (buffer == LOAD_PLACE_2_EXIT && !loadPlace2){
+		//else if (buffer == LOAD_PLACE_2_EXIT){
 		//	sendTo(LOAD_PLACE_2_STOP, STOP_ACTIVE);
 		//	sendTo(SWITCH_LOAD_PLACE, LOAD_PLACE_2);
-		//	loadPlace2 = true;
 		//	xSemaphoreGive(loadingStationCount);
-		//	//printf("Zählsemaphore zurückgeben.\n");
-		//	//xSemaphoreGive(loadingStationAccess);
-		//	//printf("Start -> Beladestation frei.\n");
-
 		//}
 
 		//Warten
@@ -361,8 +348,8 @@ void scaleFunc(void* pvParameters){
 
 		//Fahrzeug auf Waage eingefahren Richtung Startbereich?
 		if (buffer == SCALE_START_ENTRY){
-			printf("Waage ausfahrt Richtung Start.\n");
 			directionUnload = false;
+			printf("Waage ausfahrt Richtung Start.\n");
 			sendTo(SCALE_START, SCALE_START);			//Wiegevorgang starten
 			//directionStart = true;
 		}
@@ -371,7 +358,6 @@ void scaleFunc(void* pvParameters){
 		//else if (buffer == SCALE_START_EXIT){
 		//	sendTo(SCALE_START_STOP, STOP_ACTIVE);
 		//	xSemaphoreGive(scaleAccess);
-		//	//directionStart = false;
 		//}
 
 		//Wiegevorgang beendet?
@@ -415,13 +401,13 @@ void scaleFunc(void* pvParameters){
 		}
 
 		//Fahrzeug hat Waage verlassen Richtung Entladenbereich?
-		//else if (buffer == SCALE_UNLOAD_EXIT){
+		//else if (buffer == SCALE_UNLOAD_EXIT)
+		//{
 		//	sendTo(SCALE_UNLOAD_STOP, STOP_ACTIVE);
 		//	xSemaphoreGive(scaleAccess);
-		//	directionUnload = false;
 		//}
 
-		else vTaskDelay(5); /*allow Task switch*/
+		else vTaskDelay(4); /*allow Task switch*/
 	}
 }
 
@@ -464,7 +450,7 @@ void unloadingStationFunc(void* pvParameters){
 			xSemaphoreGive(unloadingStationAccess);
 			//sendTo(SWITCH_UNLOAD_1, UNLOAD_PLACE_1);		/*Entladestation auf Platz 1 einstellen*/
 			//sendTo(SWITCH_UNLOAD_2, UNLOAD_STRAIGHT_2);
-			sendTo(UNLOADING_2_START, UNLOADING_2_START);	/*Fahrzeug entladen*/
+			sendTo(UNLOADING_3_START, UNLOADING_3_START);	/*Fahrzeug entladen*/
 			break;
 
 		case UNLOADING_1_END:
@@ -522,7 +508,8 @@ void waitStationFunc(void* pvParameters){
 		xQueueReceive(waitQueue, &buffer, portMAX_DELAY);
 		printf("Wartebereich %i empfangen.\n", buffer);
 
-		switch (buffer){
+		switch (buffer)
+		{
 		case WAITSTATION_ENTRY:
 			xSemaphoreGive(unloadSwitch2);
 			printf("WaitStation: Weichen Semaphore freigegeben.\n");
@@ -531,6 +518,11 @@ void waitStationFunc(void* pvParameters){
 			}
 			else puts("Waage konnte nicht belegt werden.\n");
 			break;
+
+			//case WAITSTATION_EXIT:
+			//	sendTo(WAITSTATION_STOP, STOP_ACTIVE);
+			//	xSemaphoreGive(waitStationAccess);
+			//	break;
 
 		default:
 			vTaskDelay(5);
