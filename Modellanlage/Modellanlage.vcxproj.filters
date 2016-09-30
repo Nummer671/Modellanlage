@@ -108,9 +108,6 @@
     <ClInclude Include="..\..\generatedCode\Basiselemente\PresenceDetector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ComCodes.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="WaitStation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -121,6 +118,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ThreePlaceWaitStation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SimEventCodes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -175,9 +175,6 @@
     </ClCompile>
     <ClCompile Include="LoadingStation.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="StartAreaFoo.cpp">
-      <Filter>Functions</Filter>
     </ClCompile>
     <ClCompile Include="ThreePlaceWaitStation.cpp">
       <Filter>Source Files</Filter>

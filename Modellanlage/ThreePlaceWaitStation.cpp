@@ -15,18 +15,15 @@ int16_t ThreePlaceWaitStation::stationInit(void){
 	int16_t rc = 0;
 	uint16_t k;
 
-	/*create Semaphores*/
-	stationContr.count = xSemaphoreCreateCounting(MAX_RESOURCES, MAX_RESOURCES);
-	if (stationContr.count == NULL) rc = -1;
-	stationContr.guard = xSemaphoreCreateMutex();
-	if (stationContr.guard == NULL) rc = -1;
-	switch2.guard = xSemaphoreCreateMutex();
-	if (switch2.guard== NULL) rc = -1;
+	/*Semaphoren erzeugen*/
+	stationControl.count = xSemaphoreCreateCounting(MAX_RESOURCES, MAX_RESOURCES);
+	if (stationControl.count == NULL) rc = -1;
+	stationControl.guard = xSemaphoreCreateMutex();
+	if (stationControl.guard == NULL) rc = -1;
 
-	/*init Resources*/
-	switch2.avail == FREE;
+	/*Ressourcen initialisieren*/
 	for (k = 0; k < MAX_RESOURCES; k++){
-		stationContr.avail[k] = FREE;
+		stationControl.avail[k] = FREE;
 	}
 	return rc;
 }
@@ -36,29 +33,27 @@ int16_t ThreePlaceWaitStation::stationReserve(void){
 	int16_t retcode = 0;
 	int16_t k;
 
-	/*request station*/
-	printf("Warte auf freie Entladestation.\n");
-	rc = xSemaphoreTake(stationContr.count, portMAX_DELAY);
+	/*Station anfragen*/
+	rc = xSemaphoreTake(stationControl.count, portMAX_DELAY);
 	if (rc == pdFALSE) retcode = -1;
 	else{
-		printf("Freie Station bekommen.\n");
-		/*enter critical section*/
-		rc = xSemaphoreTake(stationContr.guard, portMAX_DELAY);
+		/*kritischen Bereich betreten*/
+		rc = xSemaphoreTake(stationControl.guard, portMAX_DELAY);
 		if (rc == pdFALSE) retcode = -1;
 		else{
-			/*look for available resource and occupy*/
+			/*nach freien Ressourcen schauen und belegen*/
 			k = 0;
-			while (k< MAX_RESOURCES && stationContr.avail[k] == OCCUPIED)
+			while (k< MAX_RESOURCES && stationControl.avail[k] == OCCUPIED)
 			{
 				k++;
 			}
-			if (k >=  MAX_RESOURCES) retcode = -2;
+			if (k >= MAX_RESOURCES) retcode = -2;
 			else{
 				retcode = k;
-				stationContr.avail[k] = OCCUPIED;
+				stationControl.avail[k] = OCCUPIED;
 			}
 		}
-		rc = xSemaphoreGive(stationContr.guard);
+		rc = xSemaphoreGive(stationControl.guard);
 		if (rc == pdFALSE) retcode = -1;
 	}
 	return retcode;
@@ -68,9 +63,8 @@ int16_t ThreePlaceWaitStation::stationRelease(int16_t which){
 	int16_t rc;
 
 	if (which >= 0 && which <  MAX_RESOURCES){
-		stationContr.avail[which] = FREE;
-		rc = xSemaphoreGive(stationContr.count);
-		printf("Entladeplatz freigegeben.\n");
+		stationControl.avail[which] = FREE;
+		rc = xSemaphoreGive(stationControl.count);
 	}
 	else rc = -1;
 	return rc;

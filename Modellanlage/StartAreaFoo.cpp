@@ -9,7 +9,7 @@ Die Funktion gibt bei Erfolg 0 und bei einem Fehler
 /* Include section */
 #include <stdio.h>
 #include <FreeRTOS.h>
-#include <ComCodes.h>
+#include <SimEventCodes.h>
 #include <iostream>
 using namespace std;
 /***************************************************/

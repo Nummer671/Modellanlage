@@ -83,7 +83,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\..\generatedCode\Basiselemente\PresenceDetector.h" />
-    <ClInclude Include="ComCodes.h" />
+    <ClInclude Include="SimEventCodes.h" />
     <ClInclude Include="include\FreeRTOSConfig.h" />
     <ClInclude Include="include\kernel\croutine.h" />
     <ClInclude Include="include\kernel\deprecated_definitions.h" />
@@ -126,7 +126,6 @@
     <ClCompile Include="src\util\bprint.c" />
     <ClCompile Include="src\util\simCommunication.c" />
     <ClCompile Include="StartArea.cpp" />
-    <ClCompile Include="StartAreaFoo.cpp" />
     <ClCompile Include="ThreePlaceWaitStation.cpp" />
     <ClCompile Include="WaitStation.cpp" />
   </ItemGroup>
