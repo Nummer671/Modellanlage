@@ -1,9 +1,13 @@
 /**************************************************************************************************
-Module:		application.cpp
-Purpose:	This template provides a FreeRTOS Windows Simulation
-System:		Visual Studio / Windows - FreeRTOS Simulator
-Date:		2016-03-11
-Version:	2.1.0
+Module:			application.cpp
+Purpose:		This template provides a FreeRTOS Windows Simulation
+System:			Visual Studio / Windows - FreeRTOS Simulator
+Date:			2016-03-11
+Version:		2.1.0
+Description:	Dieses Modul bildet die Steuerungstasks der Modellanlage ab. Die taskApplication-Task
+				ist die Haupttask, die die Anlage initialisiert und die Kommunikation mit dem
+				Simulator übernimmt. Die Ereignisse werden von dieser Task an die anderen Tasks
+				weitergeleitet.
 **************************************************************************************************/
 #include <FreeRTOS.h>
 #include <stdio.h>
@@ -136,23 +140,23 @@ extern "C" void taskApplication(void *pvParameters)
 		/*Steuerungstasks anlegen*/
 		if (xTaskCreate(startAreaFunc, startArea, configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 1, &startArea_t) == pdFALSE){
 			printf("Task für den Startbereich konnte nicht erzeugt werden.\n");
-			vTaskDelay(portMAX_DELAY);
+			vTaskDelay(portMAX_DELAY);	/*Anhalten, falls die Task nicht erzeugt werden konnte.*/
 		}
 		if (xTaskCreate(loadingStationFunc, loadStation, configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 1, &loadStation_t) == pdFALSE){
 			printf("Task für die Beladestation konnte nicht erzeugt werden.\n");
-			vTaskDelay(portMAX_DELAY);
+			vTaskDelay(portMAX_DELAY);	/*Anhalten, falls die Task nicht erzeugt werden konnte.*/
 		}
 		if (xTaskCreate(scaleFunc, scale, configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 5, &scale_t) == pdFALSE){
 			printf("Task für die Waage konnte nicht erzeugt werden.\n");
-			vTaskDelay(portMAX_DELAY);
+			vTaskDelay(portMAX_DELAY);	/*Anhalten, falls die Task nicht erzeugt werden konnte.*/
 		}
 		if (xTaskCreate(unloadingStationFunc, unloadStation, configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 3, &unloadStation_t) == pdFALSE){
 			printf("Task für die Entladestation konnte nicht erzeugt werden.\n");
-			vTaskDelay(portMAX_DELAY);
+			vTaskDelay(portMAX_DELAY);	/*Anhalten, falls die Task nicht erzeugt werden konnte.*/
 		}
 		if (xTaskCreate(waitStationFunc, waitStation, configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 4, &waitStation_t) == pdFALSE){
 			printf("Task für den Wartebereich konnte nicht erzeugt werden.\n");
-			vTaskDelay(portMAX_DELAY);
+			vTaskDelay(portMAX_DELAY);	/*Anhalten, falls die Task nicht erzeugt werden konnte.*/
 		}
 	}
 	else puts("Simulation konnte nicht erfolgreich gestartet werden. \n");
@@ -247,6 +251,10 @@ extern "C" void taskApplication(void *pvParameters)
 				break;
 
 			case ENDSEQUENZ:
+				/*Sobald der Befehl zum Beenden der Simulation empfangen wurde, wird der
+				Stopp des Startbereichs aktiviert und die Starttask suspendiert, so dass
+				keine Fahrzeuge mehr in die Anlage einfahren können. Alle anderen 
+				Fahrzeuge in der Anlage beenden noch ihren Zyklus.*/
 				sendTo(START_AREA_STOP, STOP_ACTIVE);
 				vTaskSuspend(startArea_t);
 				printf("Endsequenz eingeleitet.\n");
@@ -280,13 +288,13 @@ void startAreaFunc(void* pvParameters){
 				/*Prüfen, ob die Strecke zur Beladestation frei ist.*/
 				statusRoadway = xSemaphoreTake(loadingStationAccess, portMAX_DELAY);
 				if (statusRoadway == pdFALSE) {
-					printf("Strecke belegt.\n");
+					printf("Startbereich: Strecke belegt.\n");
 				}
 				else{
 					if (xSemaphoreTake(loadingStationCount, portMAX_DELAY) == pdTRUE){
 						sendTo(START_AREA_STOP, STOP_INACTIVE);
 					}
-					else printf("Keine Station frei.\n");
+					else printf("Startbereich: Keine Station frei.\n");
 				}
 				break;
 
@@ -407,16 +415,21 @@ void scaleFunc(void* pvParameters){
 					/*Entladestation reservieren*/
 					rc = UnloadingStation.stationReserve();
 					if (rc == 0){
+						/*Weiche auf den ersten Entladeplatz einstellen
+						und Fahrzeug starten.*/
 						sendTo(SWITCH_UNLOAD_1, UNLOAD_PLACE_1);
 						sendTo(SCALE_START_STOP, STOP_INACTIVE);
 					}
 					else if (rc == 1){
+						/*Weiche auf den zweiten Entladeplatz einstellen
+						und Fahrzeug starten.*/
 						sendTo(SWITCH_UNLOAD_1, UNLOAD_PLACE_2);
 						sendTo(SCALE_START_STOP, STOP_INACTIVE);
 					}
 					else if (rc == 2){
 						if (xSemaphoreTake(unloadSwitch2, portMAX_DELAY) == pdTRUE){
-							/*Weichen auf den driten Entladeplatz einstellen*/
+							/*Weichen auf den driten Entladeplatz einstellen
+							und Fahrzeug starten.*/
 							sendTo(SWITCH_UNLOAD_2, UNLOAD_PLACE_3);
 							sendTo(SWITCH_UNLOAD_1, UNLOAD_STRAIGHT_1);
 							sendTo(SCALE_START_STOP, STOP_INACTIVE);
